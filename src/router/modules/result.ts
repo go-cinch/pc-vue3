@@ -1,10 +1,11 @@
+import { shallowRef } from 'vue';
 import Layout from '@/layouts/index.vue';
 
 export default [
   {
     path: '/result',
     name: 'result',
-    component: Layout,
+    component: shallowRef(Layout),
     redirect: '/result/success',
     meta: { title: '结果页', icon: 'check-circle' },
     children: [

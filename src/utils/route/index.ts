@@ -42,7 +42,7 @@ function asyncImportRoute(routes: RouteItem[] | undefined) {
     if (component) {
       const layoutFound = LayoutMap.get(component.toUpperCase());
       if (layoutFound) {
-        item.component = layoutFound;
+        item.component = shallowRef(layoutFound);
       } else {
         item.component = dynamicImport(dynamicViewsModules, component);
       }
@@ -87,10 +87,10 @@ export function transformObjectToRoute<T = RouteItem>(routeList: RouteItem[]): T
 
     if (component) {
       if (component.toUpperCase() === 'LAYOUT') {
-        route.component = LayoutMap.get(component.toUpperCase());
+        route.component = shallowRef(LayoutMap.get(component.toUpperCase()));
       } else {
         route.children = [cloneDeep(route)];
-        route.component = LAYOUT;
+        route.component = shallowRef(LAYOUT);
         route.name = `${route.name}Parent`;
         route.path = '';
         route.meta = (route.meta || {}) as RouteMeta;

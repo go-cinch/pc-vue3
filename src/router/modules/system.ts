@@ -1,5 +1,5 @@
-import Layout from '@/layouts/index.vue';
 import { shallowRef } from 'vue';
+import Layout from '@/layouts/index.vue';
 
 export default [
   {

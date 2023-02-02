@@ -6,7 +6,7 @@ export default [
   {
     path: '/user',
     name: 'user',
-    component: Layout,
+    component: shallowRef(Layout),
     redirect: '/user/index',
     meta: { title: '个人页', icon: 'user-circle' },
     children: [

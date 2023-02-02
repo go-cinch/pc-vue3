@@ -1,3 +1,13 @@
+export const BOOL = {
+  TRUE: '1',
+  FALSE: '0',
+};
+
+export const LOCKED_OPTIONS = [
+  { value: BOOL.FALSE, label: '正常' },
+  { value: BOOL.TRUE, label: '已锁定' },
+];
+
 // 合同状态枚举
 export const CONTRACT_STATUS = {
   FAIL: 0,
