@@ -8,10 +8,13 @@ const Api = {
   DeleteUserGroup: '/auth/user/group',
 };
 
-export function createUserGroup(data) {
+export function createUserGroup(token, data) {
   return request.post({
     url: Api.CreateUserGroup,
     data,
+    headers: {
+      'x-idempotent': token,
+    },
   });
 }
 

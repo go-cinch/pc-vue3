@@ -8,10 +8,13 @@ const Api = {
   DeleteAction: '/auth/action',
 };
 
-export function createAction(data) {
+export function createAction(token, data) {
   return request.post({
     url: Api.CreateAction,
     data,
+    headers: {
+      'x-idempotent': token,
+    },
   });
 }
 

@@ -8,10 +8,13 @@ const Api = {
   DeleteRole: '/auth/role',
 };
 
-export function createRole(data) {
+export function createRole(token, data) {
   return request.post({
     url: Api.CreateRole,
     data,
+    headers: {
+      'x-idempotent': token,
+    },
   });
 }
 

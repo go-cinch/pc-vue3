@@ -152,6 +152,7 @@ import { prefix } from '@/config/global';
 import { createUserGroup, deleteUserGroup, findUserGroup, updateUserGroup } from '@/api/userGroup';
 import { findUser } from '@/api/user';
 import { findAction } from '@/api/action';
+import {authIdempotent} from "@/api/idempotent";
 
 const store = useSettingStore();
 
@@ -215,6 +216,16 @@ const isEdit = ref(false);
 const data = ref([]);
 const selectedRowKeys = ref([]);
 const dataLoading = ref(false);
+const idempotentToken = ref('');
+
+const refreshIdempotentToken = async () => {
+  try {
+    const { token } = await authIdempotent();
+    idempotentToken.value = token;
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const fetchData = async () => {
   dataLoading.value = true;
@@ -296,7 +307,7 @@ const cancelDelete = () => {
   resetIdx();
 };
 
-const showEdit = (row) => {
+const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
     editHeader.value = `编辑${row.id}`;
@@ -320,6 +331,7 @@ const showEdit = (row) => {
     selectActionCheckedChange();
   } else {
     editHeader.value = '新增';
+    await refreshIdempotentToken();
   }
   editVisible.value = true;
 };
@@ -330,7 +342,7 @@ const cancelEdit = () => {
 
 const doCreate = async () => {
   try {
-    await createUserGroup(editFormData.value);
+    await createUserGroup(idempotentToken.value, editFormData.value);
     MessagePlugin.success('新建成功');
     await fetchData();
     editVisible.value = false;
