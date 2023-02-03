@@ -132,6 +132,14 @@
           <t-form-item label="平台" name="platform">
             <t-input v-model="editFormData.platform" placeholder="请输入平台" />
           </t-form-item>
+          <t-form-item v-if="!isEdit" label="验证码" name="captchaAnswer">
+            <t-input v-model="editFormData.captchaAnswer" placeholder="请输入验证码">
+              <template #prefix-icon>
+                <t-icon name="secured" />
+              </template>
+            </t-input>
+            <t-image class="captcha-wrapper" :src="captchaImg" :style="{ height: '32px' }" @click="refreshCaptcha" />
+          </t-form-item>
           <t-form-item v-if="isEdit" label="授权行为" name="action">
             <t-select-input
               v-model:inputValue="selectActionInput"
@@ -179,7 +187,7 @@ import { MessagePlugin } from 'tdesign-vue-next';
 import { useSettingStore } from '@/store';
 import { prefix } from '@/config/global';
 import { BOOL, LOCKED_OPTIONS } from '@/constants';
-import { deleteUser, findUser, register, updateUser } from '@/api/user';
+import { captcha, deleteUser, findUser, register, updateUser } from '@/api/user';
 import { findAction } from '@/api/action';
 
 const store = useSettingStore();
@@ -269,6 +277,8 @@ const editForm = {
   username: '',
   password: '',
   platform: '',
+  captchaId: '',
+  captchaAnswer: '',
 };
 const lockForm = {
   forever: false,
@@ -286,6 +296,7 @@ const isEdit = ref(false);
 const data = ref([]);
 const selectedRowKeys = ref([]);
 const dataLoading = ref(false);
+const captchaImg = ref('');
 
 const fetchData = async () => {
   dataLoading.value = true;
@@ -404,7 +415,7 @@ const cancelDelete = () => {
   resetIdx();
 };
 
-const showEdit = (row) => {
+const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
     editHeader.value = `编辑${row.id}`;
@@ -419,6 +430,7 @@ const showEdit = (row) => {
     selectActionCheckedChange();
   } else {
     editHeader.value = '新增';
+    await refreshCaptcha();
   }
   editVisible.value = true;
 };
@@ -592,6 +604,17 @@ const selectActionTagChange = (currentTags, context) => {
 
 const selectActionInputChange = () => {
   fetchActionData();
+};
+
+const refreshCaptcha = async () => {
+  try {
+    const data = await captcha();
+    if (data.captcha) {
+      editFormData.value.captchaId = data.captcha.id;
+      captchaImg.value = data.captcha.img;
+    }
+  } finally {
+  }
 };
 
 onMounted(() => {

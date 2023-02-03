@@ -47,7 +47,7 @@
             <t-icon name="secured" />
           </template>
         </t-input>
-        <t-image :src="captchaImg" :style="{ height: '40px' }" @click="refreshCaptcha" />
+        <t-image class="captcha-wrapper" :src="captchaImg" :style="{ height: '40px' }" @click="refreshCaptcha" />
       </t-form-item>
 
       <div class="check-container remember-pwd">
