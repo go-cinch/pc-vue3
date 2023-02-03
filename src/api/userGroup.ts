@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { FindUserGroupReply } from '@/api/model/userGroup';
+import { FindUserGroupReply } from '@/api/model/userGroupModel';
 
 const Api = {
   CreateUserGroup: '/auth/user/group',

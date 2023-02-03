@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { FindRoleReply } from '@/api/model/role';
+import { FindRoleReply } from '@/api/model/roleModel';
 
 const Api = {
   CreateRole: '/auth/role',

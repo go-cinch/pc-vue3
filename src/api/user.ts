@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { FindUserReply, UserCaptchaReply, UserInfoReply, UserLoginReply, UserStatusReply } from '@/api/model/user';
+import { FindUserReply, UserCaptchaReply, UserInfoReply, UserLoginReply, UserStatusReply } from '@/api/model/userModel';
 
 const Api = {
   UserLogin: '/auth/login',

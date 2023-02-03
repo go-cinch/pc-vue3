@@ -1,5 +1,5 @@
 import { request } from '@/utils/request';
-import { FindActionReply } from '@/api/model/action';
+import { FindActionReply } from '@/api/model/actionModel';
 
 const Api = {
   CreateAction: '/auth/action',
