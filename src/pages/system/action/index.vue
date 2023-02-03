@@ -386,44 +386,5 @@ const getContainer = () => {
 </script>
 
 <style lang="less" scoped>
-.list-common-table {
-  background-color: var(--td-bg-color-container);
-  padding: 30px 32px;
-
-  .table-container {
-    margin-top: 30px;
-  }
-}
-
-.form-item-content {
-  width: 100%;
-}
-
-.operation-container {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-
-  .expand {
-    .t-button__text {
-      display: flex;
-      align-items: center;
-    }
-
-    .t-icon {
-      margin-left: 4px;
-      transition: transform 0.3s ease;
-    }
-  }
-}
-
-.payment-col {
-  display: flex;
-
-  .trend-container {
-    display: flex;
-    align-items: center;
-    margin-left: 8px;
-  }
-}
+@import url('../index.less');
 </style>
