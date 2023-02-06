@@ -1,4 +1,5 @@
 import { Page } from '@/api/model/pageModel';
+import { Role } from '@/api/model/roleModel';
 
 export interface UserLoginReply {
   code: number;
@@ -53,6 +54,8 @@ export interface User {
   introduction: string;
   lastLogin: string;
   lockMsg: string;
+  roleId: string;
+  role: Role;
 }
 
 export interface FindUserReply {

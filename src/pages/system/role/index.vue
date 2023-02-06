@@ -40,13 +40,13 @@
         </t-col>
 
         <t-col :span="4" class="operation-container">
-          <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
-          <t-button type="reset" variant="base" theme="default"> 重置</t-button>
-          <t-button theme="primary" @click="handleCreate">
+          <t-button v-permission="'system.role.read'" theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+          <t-button v-permission="'system.role.read'" type="reset" variant="base" theme="default"> 重置</t-button>
+          <t-button v-permission="'system.role.create'" theme="primary" @click="handleCreate">
             <t-icon name="add" />
             新建
           </t-button>
-          <t-button theme="danger" @click="handleDelete">
+          <t-button v-permission="'system.role.delete'" theme="danger" @click="handleDelete">
             <t-icon name="delete" />
             删除
           </t-button>
@@ -56,6 +56,7 @@
 
     <div class="table-container">
       <t-table
+        v-permission="'system.role.read'"
         :data="data"
         :columns="COLUMNS"
         :row-key="rowKey"
@@ -69,8 +70,8 @@
         @page-change="handlePageChange"
       >
         <template #op="slotProps">
-          <a class="t-button-link" @click="handleRowEdit(slotProps)">编辑</a>
-          <a class="t-button-link" @click="handleRowDelete(slotProps)">删除</a>
+          <a v-permission="'system.role.update'" class="t-button-link" @click="handleRowEdit(slotProps)">编辑</a>
+          <a v-permission="'system.role.delete'" class="t-button-link" @click="handleRowDelete(slotProps)">删除</a>
         </template>
       </t-table>
       <t-dialog
@@ -350,7 +351,6 @@ const deleteByIds = async (ids) => {
 const handleRowEdit = ({ row }) => {
   isEdit.value = true;
   showEdit(row);
-  console.log(row);
 };
 
 const handleRowDelete = ({ row }) => {
@@ -372,9 +372,7 @@ const handleSelectChange = (value) => {
   selectedRowKeys.value = value;
 };
 
-const handleReset = (val) => {
-  console.log(val);
-};
+const handleReset = () => {};
 
 const handleSubmit = async ({ validateResult }) => {
   if (validateResult === true) {

@@ -62,13 +62,15 @@
         </t-col>
 
         <t-col :span="4" class="operation-container">
-          <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
-          <t-button type="reset" variant="base" theme="default"> 重置</t-button>
-          <t-button theme="primary" @click="handleCreate">
+          <t-button v-permission="'system.user.read'" theme="primary" type="submit" :style="{ marginLeft: '8px' }">
+            查询</t-button
+          >
+          <t-button v-permission="'system.user.read'" type="reset" variant="base" theme="default"> 重置</t-button>
+          <t-button v-permission="'system.user.create'" theme="primary" @click="handleCreate">
             <t-icon name="add" />
             新建
           </t-button>
-          <t-button theme="danger" @click="handleDelete">
+          <t-button v-permission="'system.user.delete'" theme="danger" @click="handleDelete">
             <t-icon name="delete" />
             删除
           </t-button>
@@ -78,6 +80,7 @@
 
     <div class="table-container">
       <t-table
+        v-permission="'system.user.read'"
         :data="data"
         :columns="COLUMNS"
         :row-key="rowKey"
@@ -98,10 +101,18 @@
           <t-tag v-if="row.locked === BOOL.TRUE" theme="danger" variant="light">已锁定</t-tag>
         </template>
         <template #op="slotProps">
-          <a class="t-button-link" @click="handleRowEdit(slotProps)">编辑</a>
-          <a v-if="slotProps.row.locked === BOOL.FALSE" class="t-button-link" @click="handleRowLock(slotProps)">锁定</a>
-          <a v-else class="t-button-link" @click="handleRowUnlock(slotProps)">解锁</a>
-          <a class="t-button-link" @click="handleRowDelete(slotProps)">删除</a>
+          <a v-permission="'system.user.update'" class="t-button-link" @click="handleRowEdit(slotProps)">编辑</a>
+          <a
+            v-if="slotProps.row.locked === BOOL.FALSE"
+            v-permission="'system.user.update'"
+            class="t-button-link"
+            @click="handleRowLock(slotProps)"
+            >锁定</a
+          >
+          <a v-else v-permission="'system.user.update'" class="t-button-link" @click="handleRowUnlock(slotProps)"
+            >解锁</a
+          >
+          <a v-permission="'system.user.delete'" class="t-button-link" @click="handleRowDelete(slotProps)">删除</a>
         </template>
       </t-table>
       <t-dialog
@@ -139,6 +150,32 @@
               </template>
             </t-input>
             <t-image class="captcha-wrapper" :src="captchaImg" :style="{ height: '32px' }" @click="refreshCaptcha" />
+          </t-form-item>
+          <t-form-item v-if="isEdit" label="角色" name="role">
+            <t-select-input
+              v-model:inputValue="selectRoleInput"
+              :value="selectRoleData"
+              :allow-input="true"
+              placeholder="请选择或输入"
+              :tag-input-props="{ excessTagsDisplayType: 'break-line' }"
+              clearable
+              multiple
+              @tag-change="selectRoleTagChange"
+              @input-change="selectRoleInputChange"
+            >
+              <template #panel>
+                <t-checkbox-group
+                  v-if="selectRoleOptions.length"
+                  v-model="selectRoleChecked"
+                  :options="selectRoleOptions"
+                  @change="selectRoleOptionsCheckedChange"
+                />
+                <div v-else class="tdesign-demo__select-empty-multiple">暂无数据</div>
+              </template>
+              <template #suffixIcon>
+                <t-icon class="chevron-down" />
+              </template>
+            </t-select-input>
           </t-form-item>
           <t-form-item v-if="isEdit" label="授权行为" name="action">
             <t-select-input
@@ -189,6 +226,7 @@ import { prefix } from '@/config/global';
 import { BOOL, LOCKED_OPTIONS } from '@/constants';
 import { captcha, deleteUser, findUser, register, updateUser } from '@/api/user';
 import { findAction } from '@/api/action';
+import { findRole } from '@/api/role';
 
 const store = useSettingStore();
 
@@ -342,6 +380,28 @@ const fetchActionData = async () => {
   }
 };
 
+const fetchRoleData = async () => {
+  const params = {
+    word: selectRoleInput.value,
+    'page.num': pagination.value.current,
+    'page.size': pagination.value.pageSize,
+  };
+  try {
+    const { list } = await findRole(params);
+    const arr = [];
+    for (const k in list) {
+      arr.push({
+        label: `${list[k].word}[${list[k].name}]`,
+        value: list[k].id,
+      });
+    }
+    selectRoleOptions.value = arr;
+  } catch (e) {
+    console.log(e);
+  } finally {
+  }
+};
+
 const unlockIdx = ref(-1);
 
 const cancelUnlock = () => {
@@ -428,6 +488,15 @@ const showEdit = async (row) => {
     }
     selectActionData.value = arr2;
     selectActionCheckedChange();
+    if (row.roleId !== '0') {
+      const arr3 = [];
+      arr3.push({
+        label: `${row.role.word}[${row.role.name}]`,
+        value: row.roleId,
+      });
+      selectRoleData.value = arr3;
+    }
+    selectRoleCheckedChange();
   } else {
     editHeader.value = '新增';
     await refreshCaptcha();
@@ -460,9 +529,14 @@ const doEdit = async () => {
     for (const k in selectActionData.value) {
       arr2.push(selectActionData.value[k].value);
     }
+    let roleId = '0';
+    if (selectRoleData.value.length > 0) {
+      roleId = selectRoleData.value[0].value;
+    }
     await updateUser({
       ...editFormData.value,
       action: arr2.join(','),
+      roleId,
     });
     MessagePlugin.success('修改成功');
     await fetchData();
@@ -507,7 +581,6 @@ const deleteByIds = async (ids) => {
 const handleRowEdit = ({ row }) => {
   isEdit.value = true;
   showEdit(row);
-  console.log(row);
 };
 
 const handleRowDelete = ({ row }) => {
@@ -539,9 +612,7 @@ const handleSelectChange = (value) => {
   selectedRowKeys.value = value;
 };
 
-const handleReset = (val) => {
-  console.log(val);
-};
+const handleReset = () => {};
 
 const handleSubmit = async ({ validateResult }) => {
   if (validateResult === true) {
@@ -604,6 +675,57 @@ const selectActionTagChange = (currentTags, context) => {
 
 const selectActionInputChange = () => {
   fetchActionData();
+};
+
+const selectRoleOptions = ref([]);
+const selectRoleInput = ref('');
+const selectRoleData = ref([]);
+const selectRoleChecked = ref([]);
+
+const selectRoleCheckedChange = () => {
+  const arr = [];
+  const list = selectRoleData.value;
+  for (let i = 0, len = list.length; i < len; i++) {
+    arr.push(list[i].value);
+  }
+  selectRoleChecked.value = arr;
+  selectRoleInput.value = '';
+  fetchRoleData();
+};
+
+const selectRoleOptionsCheckedChange = (val, { current, type }) => {
+  if (!current) {
+    selectRoleData.value = type === 'check' ? selectRoleData.value.slice(1) : [];
+    return;
+  }
+  if (type === 'check') {
+    const option = selectRoleOptions.value.find((t) => t.value === current);
+    selectRoleData.value.push(option);
+  } else {
+    selectRoleData.value = selectRoleData.value.filter((v) => v.value !== current);
+  }
+  selectRoleCheckedChange();
+};
+
+const selectRoleTagChange = (currentTags, context) => {
+  const { trigger, index, item } = context;
+  if (trigger === 'clear') {
+    selectRoleData.value = [];
+  }
+  if (['tag-remove'].includes(trigger)) {
+    selectRoleData.value.splice(index, 1);
+  }
+  if (trigger === 'enter') {
+    const current = { label: item, value: item };
+    selectRoleData.value.push(current);
+    selectRoleOptions.value = selectRoleOptions.value.concat(current);
+    selectRoleInput.value = '';
+  }
+  selectRoleCheckedChange();
+};
+
+const selectRoleInputChange = () => {
+  fetchRoleData();
 };
 
 const refreshCaptcha = async () => {
