@@ -64,8 +64,8 @@ export const usePermissionStore = defineStore('permission', {
           });
           if (children.length > 0) {
             route.children = children;
+            routes.push(route);
           }
-          routes.push(route);
         });
       }
       return routes;

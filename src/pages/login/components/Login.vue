@@ -77,8 +77,8 @@ import { captcha, userStatus } from '@/api/user';
 const userStore = useUserStore();
 
 const INITIAL_DATA = {
-  username: 'admin',
-  password: '123456',
+  username: 'super',
+  password: 'cinch123',
   checked: false,
   captchaId: '',
   captchaAnswer: '',

@@ -3,7 +3,7 @@ import NProgress from 'nprogress'; // progress bar
 import 'nprogress/nprogress.css'; // progress bar style
 
 import { RouteRecordRaw } from 'vue-router';
-import { getPermissionStore, getUserStore } from '@/store';
+import { getPermissionStore, getTabsRouterStore, getUserStore } from '@/store';
 import router from '@/router';
 import { PAGE_NOT_FOUND_ROUTE } from '@/utils/route/constant';
 
@@ -75,9 +75,11 @@ router.afterEach((to) => {
   if (to.path === '/login') {
     const userStore = getUserStore();
     const permissionStore = getPermissionStore();
+    const tabsRouterStore = getTabsRouterStore();
 
     userStore.logout();
     permissionStore.restoreRoutes();
+    tabsRouterStore.removeTabRouterList();
   }
   NProgress.done();
 });
