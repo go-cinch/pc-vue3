@@ -11,7 +11,7 @@ import { ContentTypeEnum } from '@/constants';
 const env = import.meta.env.MODE || 'development';
 
 // 如果是mock模式 或 没启用直连代理 就不配置host 会走本地Mock拦截 或 Vite 代理
-const host = env === 'mock' || !proxy.isRequestProxy ? '' : proxy[env].host;
+const host = env === 'mock' || env === 'release' || !proxy.isRequestProxy ? '' : proxy[env].host;
 
 // 数据处理，方便区分多种处理方式
 const transform: AxiosTransform = {
