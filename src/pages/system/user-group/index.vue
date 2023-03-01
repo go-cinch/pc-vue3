@@ -1,4 +1,4 @@
-v-permission="'system.action.read'" <template>
+<template>
   <div class="list-common-table">
     <t-form
       ref="form"
@@ -40,7 +40,14 @@ v-permission="'system.action.read'" <template>
         </t-col>
 
         <t-col :span="4" class="operation-container">
-          <t-button v-permission="'system.user.group.read'" theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+          <t-button
+            v-permission="'system.user.group.read'"
+            theme="primary"
+            type="submit"
+            :style="{ marginLeft: '8px' }"
+          >
+            查询</t-button
+          >
           <t-button v-permission="'system.user.group.read'" type="reset" variant="base" theme="default"> 重置</t-button>
           <t-button v-permission="'system.user.group.create'" theme="primary" @click="handleCreate">
             <t-icon name="add" />
@@ -71,12 +78,14 @@ v-permission="'system.action.read'" <template>
       >
         <template #op="slotProps">
           <a v-permission="'system.user.group.update'" class="t-button-link" @click="handleRowEdit(slotProps)">编辑</a>
-          <a v-permission="'system.user.group.delete'" class="t-button-link" @click="handleRowDelete(slotProps)">删除</a>
+          <a v-permission="'system.user.group.delete'" class="t-button-link" @click="handleRowDelete(slotProps)"
+            >删除</a
+          >
         </template>
       </t-table>
       <t-dialog
         v-model:visible="deleteVisible"
-        header="确认删除？"
+        :header="deleteHeader"
         :on-cancel="cancelDelete"
         @confirm="confirmDelete"
       />
@@ -153,7 +162,7 @@ import { prefix } from '@/config/global';
 import { createUserGroup, deleteUserGroup, findUserGroup, updateUserGroup } from '@/api/userGroup';
 import { findUser } from '@/api/user';
 import { findAction } from '@/api/action';
-import {authIdempotent} from "@/api/idempotent";
+import { authIdempotent } from '@/api/idempotent';
 
 const store = useSettingStore();
 
@@ -211,6 +220,7 @@ const editForm = {
 const formData = ref({ ...searchForm });
 const editFormData = ref({ ...editForm });
 const deleteVisible = ref(false);
+const deleteHeader = ref('');
 const editVisible = ref(false);
 const editHeader = ref('');
 const isEdit = ref(false);
@@ -311,7 +321,7 @@ const cancelDelete = () => {
 const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
-    editHeader.value = `编辑${row.id}`;
+    editHeader.value = `编辑"${row.word}"`;
     const arr1 = [];
     for (const k in row.users) {
       arr1.push({
@@ -418,6 +428,7 @@ const handleRowEdit = ({ row }) => {
 
 const handleRowDelete = ({ row }) => {
   deleteIdx.value = row.id;
+  deleteHeader.value = `删除"${row.word}", 不可恢复?`;
   deleteVisible.value = true;
 };
 

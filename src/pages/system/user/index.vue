@@ -117,22 +117,17 @@
       </t-table>
       <t-dialog
         v-model:visible="deleteVisible"
-        header="确认删除？"
+        :header="deleteHeader"
         :on-cancel="cancelDelete"
         @confirm="confirmDelete"
       />
       <t-dialog
         v-model:visible="unlockVisible"
-        header="确认解锁？"
+        :header="unlockHeader"
         :on-cancel="cancelUnlock"
         @confirm="confirmUnlock"
       />
-      <t-dialog
-        v-model:visible="editVisible"
-        :header="isEdit ? '编辑' : '新增'"
-        :on-cancel="cancelEdit"
-        @confirm="confirmEdit"
-      >
+      <t-dialog v-model:visible="editVisible" :header="editHeader" :on-cancel="cancelEdit" @confirm="confirmEdit">
         <t-form :data="editFormData">
           <t-form-item label="用户名" name="username">
             <t-input v-model="editFormData.username" placeholder="请输入内容" />
@@ -205,7 +200,7 @@
           </t-form-item>
         </t-form>
       </t-dialog>
-      <t-dialog v-model:visible="lockVisible" header="锁定" :on-cancel="cancelLock" @confirm="confirmLock">
+      <t-dialog v-model:visible="lockVisible" :header="lockHeader" :on-cancel="cancelLock" @confirm="confirmLock">
         <t-form :data="lockFormData">
           <t-form-item label="永久锁定" name="forever">
             <t-switch v-model="lockFormData.forever" />
@@ -326,9 +321,12 @@ const formData = ref({ ...searchForm });
 const editFormData = ref({ ...editForm });
 const lockFormData = ref({ ...lockForm });
 const deleteVisible = ref(false);
+const deleteHeader = ref('');
 const editVisible = ref(false);
 const lockVisible = ref(false);
+const lockHeader = ref('');
 const unlockVisible = ref(false);
+const unlockHeader = ref('');
 const editHeader = ref('');
 const isEdit = ref(false);
 const data = ref([]);
@@ -478,7 +476,7 @@ const cancelDelete = () => {
 const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
-    editHeader.value = `编辑${row.id}`;
+    editHeader.value = `编辑"${row.username}"`;
     const arr2 = [];
     for (const k in row.actions) {
       arr2.push({
@@ -585,16 +583,19 @@ const handleRowEdit = ({ row }) => {
 
 const handleRowDelete = ({ row }) => {
   deleteIdx.value = row.id;
+  deleteHeader.value = `删除"${row.username}", 不可恢复?`;
   deleteVisible.value = true;
 };
 
 const handleRowLock = ({ row }) => {
   lockIdx.value = row.id;
+  lockHeader.value = `锁定"${row.username}"?`;
   lockVisible.value = true;
 };
 
 const handleRowUnlock = ({ row }) => {
   unlockIdx.value = row.id;
+  lockHeader.value = `解锁"${row.username}"?`;
   unlockVisible.value = true;
 };
 

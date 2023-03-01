@@ -52,7 +52,9 @@
         </t-col>
 
         <t-col :span="4" class="operation-container">
-          <t-button v-permission="'system.action.read'" theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+          <t-button v-permission="'system.action.read'" theme="primary" type="submit" :style="{ marginLeft: '8px' }">
+            查询</t-button
+          >
           <t-button v-permission="'system.action.read'" type="reset" variant="base" theme="default"> 重置</t-button>
           <t-button v-permission="'system.action.create'" theme="primary" @click="handleCreate">
             <t-icon name="add" />
@@ -88,7 +90,7 @@
       </t-table>
       <t-dialog
         v-model:visible="deleteVisible"
-        header="确认删除？"
+        :header="deleteHeader"
         :on-cancel="cancelDelete"
         @confirm="confirmDelete"
       />
@@ -132,7 +134,7 @@ import { MessagePlugin } from 'tdesign-vue-next';
 import { useSettingStore } from '@/store';
 import { prefix } from '@/config/global';
 import { createAction, deleteAction, findAction, updateAction } from '@/api/action';
-import {authIdempotent} from "@/api/idempotent";
+import { authIdempotent } from '@/api/idempotent';
 
 const store = useSettingStore();
 
@@ -206,6 +208,7 @@ const editForm = {
 const formData = ref({ ...searchForm });
 const editFormData = ref({ ...editForm });
 const deleteVisible = ref(false);
+const deleteHeader = ref('');
 const editVisible = ref(false);
 const editHeader = ref('');
 const isEdit = ref(false);
@@ -262,7 +265,7 @@ const cancelDelete = () => {
 const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
-    editHeader.value = `编辑${row.id}`;
+    editHeader.value = `编辑"${row.word}"`;
   } else {
     editHeader.value = '新增';
     await refreshIdempotentToken();
@@ -339,6 +342,7 @@ const handleRowEdit = ({ row }) => {
 
 const handleRowDelete = ({ row }) => {
   deleteIdx.value = row.id;
+  deleteHeader.value = `删除"${row.word}", 不可恢复?`;
   deleteVisible.value = true;
 };
 

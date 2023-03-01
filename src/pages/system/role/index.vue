@@ -76,7 +76,7 @@
       </t-table>
       <t-dialog
         v-model:visible="deleteVisible"
-        header="确认删除？"
+        :header="deleteHeader"
         :on-cancel="cancelDelete"
         @confirm="confirmDelete"
       />
@@ -184,6 +184,7 @@ const editForm = {
 const formData = ref({ ...searchForm });
 const editFormData = ref({ ...editForm });
 const deleteVisible = ref(false);
+const deleteHeader = ref('');
 const editVisible = ref(false);
 const editHeader = ref('');
 const isEdit = ref(false);
@@ -262,7 +263,7 @@ const cancelDelete = () => {
 const showEdit = async (row) => {
   if (row) {
     editFormData.value = row;
-    editHeader.value = `编辑${row.id}`;
+    editHeader.value = `编辑"${row.word}"`;
     const arr2 = [];
     for (const k in row.actions) {
       arr2.push({
@@ -355,6 +356,7 @@ const handleRowEdit = ({ row }) => {
 
 const handleRowDelete = ({ row }) => {
   deleteIdx.value = row.id;
+  deleteHeader.value = `删除"${row.word}", 不可恢复?`;
   deleteVisible.value = true;
 };
 

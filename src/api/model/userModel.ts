@@ -30,9 +30,6 @@ export interface UserInfoReply {
   username: string;
   code: string;
   mobile: string;
-  avatar: string;
-  nickname: string;
-  introduction: string;
   permission: {
     resources: Array<string>;
     menus: Array<string>;
@@ -49,11 +46,9 @@ export interface User {
   mobile: string;
   status: string;
   locked: string;
-  avatar: string;
-  nickname: string;
-  introduction: string;
-  lastLogin: string;
   lockMsg: string;
+  platform: string;
+  lastLogin: string;
   roleId: string;
   role: Role;
 }
