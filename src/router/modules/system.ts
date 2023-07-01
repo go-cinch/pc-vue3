@@ -33,6 +33,12 @@ export default [
         component: () => import('@/pages/system/action/index.vue'),
         meta: { title: '行为' },
       },
+      {
+        path: 'whitelist',
+        name: 'SystemWhitelist',
+        component: () => import('@/pages/system/whitelist/index.vue'),
+        meta: { title: '白名单' },
+      },
     ],
   },
 ];

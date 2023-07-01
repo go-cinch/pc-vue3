@@ -8,6 +8,12 @@ export const LOCKED_OPTIONS = [
   { value: BOOL.TRUE, label: '已锁定' },
 ];
 
+export const WHITELIST_OPTIONS = [
+  { value: 0, label: 'permission' },
+  { value: 1, label: 'jwt' },
+  { value: 2, label: 'idempotent' },
+];
+
 // 合同状态枚举
 export const CONTRACT_STATUS = {
   FAIL: 0,
