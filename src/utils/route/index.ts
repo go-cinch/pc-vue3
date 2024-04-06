@@ -1,13 +1,15 @@
 import cloneDeep from 'lodash/cloneDeep';
 import { shallowRef } from 'vue';
-import { RouteItem, RouteMeta } from '@/api/model/permissionModel';
+
+import { RouteItem } from '@/api/model/permissionModel';
+import { RouteMeta } from '@/types/interface';
 import {
   BLANK_LAYOUT,
-  LAYOUT,
-  IFRAME,
   EXCEPTION_COMPONENT,
-  PARENT_LAYOUT,
+  IFRAME,
+  LAYOUT,
   PAGE_NOT_FOUND_ROUTE,
+  PARENT_LAYOUT,
 } from '@/utils/route/constant';
 
 // vite 3+ support dynamic import from node_modules
@@ -22,7 +24,7 @@ LayoutMap.set('IFRAME', IFRAME);
 let dynamicViewsModules: Record<string, () => Promise<Recordable>>;
 
 // 动态从包内引入单个Icon
-async function getMenuIcon(iconName: string) {
+async function getMenuIcon(iconName: string): Promise<string> {
   const RenderIcon = iconsPath[`../../../node_modules/tdesign-icons-vue-next/esm/components/${iconName}.js`];
 
   const Icon = await RenderIcon();
@@ -49,6 +51,7 @@ function asyncImportRoute(routes: RouteItem[] | undefined) {
     } else if (name) {
       item.component = PARENT_LAYOUT();
     }
+
     if (item.meta.icon) item.meta.icon = await getMenuIcon(item.meta.icon);
 
     // eslint-disable-next-line no-unused-expressions

@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-panel-detail">
-    <t-card title="本月采购申请情况" class="dashboard-detail-card" :bordered="false">
+    <t-card :title="$t('pages.dashboardDetail.topPanel.title')" class="dashboard-detail-card" :bordered="false">
       <t-row :gutter="[16, 16]">
         <t-col v-for="(item, index) in PANE_LIST_DATA" :key="index" :xs="6" :xl="3">
           <t-card class="dashboard-list-card" :description="item.title">
             <div class="dashboard-list-card__number">{{ item.number }}</div>
             <div class="dashboard-list-card__text">
               <div class="dashboard-list-card__text-left">
-                环比
+                {{ $t('pages.dashboardDetail.topPanel.quarter') }}
                 <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />
               </div>
               <t-icon name="chevron-right" />
@@ -18,18 +18,18 @@
     </t-card>
     <t-row :gutter="[16, 16]" class="row-margin">
       <t-col :xs="12" :xl="9">
-        <t-card class="dashboard-detail-card" title="采购商品申请趋势" subtitle="(件)" :bordered="false">
+        <t-card class="dashboard-detail-card" :title="$t('pages.dashboardDetail.procurement.title')" :bordered="false">
           <template #actions>
             <t-date-range-picker
               class="card-date-picker-container"
               :default-value="LAST_7_DAYS"
               theme="primary"
               mode="date"
-              style="width: 240px"
-              @change="onMaterialChange"
+              style="width: 248px"
+              @change="(value) => onMaterialChange(value as string[])"
             />
           </template>
-          <div id="lineContainer" style="width: 100%; height: 410px" />
+          <div id="lineContainer" style="width: 100%; height: 416px" />
         </t-card>
       </t-col>
       <t-col :xs="12" :xl="3">
@@ -37,23 +37,27 @@
           v-for="(item, index) in PRODUCT_LIST"
           :key="index"
           :product="item"
-          :class="{ 'row-margin': index !== 0 }"
+          :class="{ 'row-margin': index !== 0, 'product-card': true }"
         />
       </t-col>
     </t-row>
-    <t-card :class="['dashboard-detail-card', 'row-margin']" title="采购商品满意度分布" :bordered="false">
+    <t-card
+      :class="['dashboard-detail-card', 'row-margin']"
+      :title="$t('pages.dashboardDetail.satisfaction.title')"
+      :bordered="false"
+    >
       <template #actions>
         <t-date-range-picker
           class="card-date-picker-container"
           :default-value="LAST_7_DAYS"
           theme="primary"
           mode="date"
-          style="display: inline-block; margin-right: 8px; width: 240px"
+          style="display: inline-block; margin-right: var(--td-comp-margin-s); width: 248px"
           @change="onSatisfyChange"
         />
-        <t-button class="card-date-button"> 导出数据 </t-button>
+        <t-button class="card-date-button"> {{ $t('pages.dashboardDetail.satisfaction.export') }} </t-button>
       </template>
-      <div id="scatterContainer" style="width: 100%; height: 330px" />
+      <div id="scatterContainer" style="width: 100%; height: 434px" />
     </t-card>
   </div>
 </template>
@@ -65,21 +69,21 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, watch, computed, onDeactivated } from 'vue';
-
-import * as echarts from 'echarts/core';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { useWindowSize } from '@vueuse/core';
 import { LineChart, ScatterChart } from 'echarts/charts';
+import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
+import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
-import ProductCard from '@/components/product-card/index.vue';
+import { computed, nextTick, onDeactivated, onMounted, watch } from 'vue';
 
-import { getFolderLineDataSet, getScatterDataSet } from './index';
-import { PANE_LIST_DATA, PRODUCT_LIST } from './constants';
-import { LAST_7_DAYS } from '@/utils/date';
+import ProductCard from '@/components/product-card/index.vue';
+import Trend from '@/components/trend/index.vue';
 import { useSettingStore } from '@/store';
 import { changeChartsTheme } from '@/utils/color';
+import { LAST_7_DAYS } from '@/utils/date';
 
-import Trend from '@/components/trend/index.vue';
+import { PANE_LIST_DATA, PRODUCT_LIST } from './constants';
+import { getFolderLineDataSet, getScatterDataSet } from './index';
 
 echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, ScatterChart, CanvasRenderer]);
 
@@ -123,14 +127,14 @@ const renderCharts = () => {
 
 onMounted(() => {
   renderCharts();
-  window.addEventListener('resize', updateContainer, false);
   nextTick(() => {
     updateContainer();
   });
 });
 
-onUnmounted(() => {
-  window.removeEventListener('resize', updateContainer);
+const { width, height } = useWindowSize();
+watch([width, height], () => {
+  updateContainer();
 });
 
 onDeactivated(() => {
@@ -167,6 +171,23 @@ const onMaterialChange = (value: string[]) => {
   margin-top: 16px;
 }
 
+.product-card {
+  padding: var(--td-comp-paddingTB-xl) var(--td-comp-paddingTB-xl);
+
+  :deep(.t-card__header) {
+    padding: 0;
+  }
+
+  :deep(.t-card__body) {
+    padding: 0;
+    margin-top: var(--td-comp-margin-xxl);
+    margin-bottom: var(--td-comp-margin-xxl);
+  }
+
+  :deep(.t-card__footer) {
+    padding: 0;
+  }
+}
 // 统一增加8px;
 .dashboard-detail-card {
   padding: var(--td-comp-paddingTB-xxl) var(--td-comp-paddingLR-xxl);
@@ -224,8 +245,8 @@ const onMaterialChange = (value: string[]) => {
   }
 
   &__number {
-    font: var(--td-font-headline-large);
-    font-weight: 400;
+    font-size: var(--td-font-size-headline-medium);
+    line-height: var(--td-font-size-headline-medium);
     color: var(--td-text-color-primary);
     margin-bottom: var(--td-comp-margin-xxl);
   }
@@ -242,6 +263,7 @@ const onMaterialChange = (value: string[]) => {
     .t-icon {
       font-size: var(--td-comp-size-xxxs);
     }
+
     &-left {
       display: flex;
 

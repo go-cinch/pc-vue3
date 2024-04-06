@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
 import { RouteRecordRaw } from 'vue-router';
-import router, { fixedRouterList, homepageRouterList } from '@/router';
-import { store } from '@/store';
+
 import { RouteItem } from '@/api/model/permissionModel';
 import { getMenuList } from '@/api/permission';
+import router, { fixedRouterList, homepageRouterList } from '@/router';
+import { store } from '@/store';
 import { transformObjectToRoute } from '@/utils/route';
 
 export const usePermissionStore = defineStore('permission', {
@@ -36,9 +37,13 @@ export const usePermissionStore = defineStore('permission', {
       }
     },
     async restoreRoutes() {
-      this.removeRoutes.forEach((item: RouteRecordRaw) => {
-        router.addRoute(item);
+      // 不需要在此额外调用initRoutes更新侧边导肮内容，在登录后asyncRoutes为空会调用
+      this.asyncRoutes.forEach((item: RouteRecordRaw) => {
+        if (item.name) {
+          router.removeRoute(item.name);
+        }
       });
+      this.asyncRoutes = [];
     },
   },
 });

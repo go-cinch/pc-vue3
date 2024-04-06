@@ -1,13 +1,13 @@
-import { useRoute, createRouter, RouteRecordRaw, createWebHistory } from 'vue-router';
 import uniq from 'lodash/uniq';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const env = import.meta.env.MODE || 'development';
 
 // 导入homepage相关固定路由
-const homepageModules = import.meta.globEager('./modules/**/homepage.ts');
+const homepageModules = import.meta.glob('./modules/**/homepage.ts', { eager: true });
 
 // 导入modules非homepage相关固定路由
-const fixedModules = import.meta.globEager('./modules/**/!(homepage).ts');
+const fixedModules = import.meta.glob('./modules/**/!(homepage).ts', { eager: true });
 
 // 其他固定路由
 const defaultRouterList: Array<RouteRecordRaw> = [
@@ -40,7 +40,7 @@ export function mapModuleRouterList(modules: Record<string, unknown>): Array<Rou
 }
 
 export const getRoutesExpanded = () => {
-  const expandedRoutes = [];
+  const expandedRoutes: Array<string> = [];
 
   fixedRouterList.forEach((item) => {
     if (item.meta && item.meta.expanded) {
@@ -59,10 +59,13 @@ export const getRoutesExpanded = () => {
 };
 
 export const getActive = (maxLevel = 3): string => {
-  const route = useRoute();
+  // 非组件内调用必须通过Router实例获取当前路由
+  const route = router.currentRoute.value;
+
   if (!route.path) {
     return '';
   }
+
   return route.path
     .split('/')
     .filter((_item: string, index: number) => index <= maxLevel && index > 0)

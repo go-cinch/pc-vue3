@@ -4,20 +4,20 @@
       <template v-if="!item.children || !item.children.length || item.meta?.single">
         <t-menu-item v-if="getHref(item)" :name="item.path" :value="getPath(item)" @click="openHref(getHref(item)[0])">
           <template #icon>
-            <component :is="menuIcon(item)"></component>
+            <component :is="menuIcon(item)" class="t-icon"></component>
           </template>
-          {{ item.title }}
+          {{ renderMenuTitle(item.title) }}
         </t-menu-item>
         <t-menu-item v-else :name="item.path" :value="getPath(item)" :to="item.path">
           <template #icon>
-            <component :is="menuIcon(item)"></component>
+            <component :is="menuIcon(item)" class="t-icon"></component>
           </template>
-          {{ item.title }}
+          {{ renderMenuTitle(item.title) }}
         </t-menu-item>
       </template>
-      <t-submenu v-else :name="item.path" :value="item.path" :title="item.title">
+      <t-submenu v-else :name="item.path" :value="item.path" :title="renderMenuTitle(item.title)">
         <template #icon>
-          <component :is="menuIcon(item)"></component>
+          <component :is="menuIcon(item)" class="t-icon"></component>
         </template>
         <menu-content v-if="item.children" :nav-data="item.children" />
       </t-submenu>
@@ -25,10 +25,12 @@
   </div>
 </template>
 <script setup lang="tsx">
-import { computed } from 'vue';
 import type { PropType } from 'vue';
-import type { MenuRoute } from '@/types/interface';
+import { computed } from 'vue';
+
+import { useLocale } from '@/locales/useLocale';
 import { getActive } from '@/router';
+import type { MenuRoute } from '@/types/interface';
 
 type ListItemType = MenuRoute & { icon?: string };
 
@@ -41,6 +43,7 @@ const props = defineProps({
 
 const active = computed(() => getActive());
 
+const { locale } = useLocale();
 const list = computed(() => {
   const { navData } = props;
   return getMenuList(navData);
@@ -52,8 +55,13 @@ const menuIcon = (item: ListItemType) => {
   return RenderIcon;
 };
 
+const renderMenuTitle = (title: string | Record<string, string>) => {
+  if (typeof title === 'string') return title;
+  return title[locale.value];
+};
+
 const getMenuList = (list: MenuRoute[], basePath?: string): ListItemType[] => {
-  if (!list) {
+  if (!list || list.length === 0) {
     return [];
   }
   // 如果meta中有orderNo则按照从小到大排序
@@ -85,9 +93,16 @@ const getHref = (item: MenuRoute) => {
 };
 
 const getPath = (item: ListItemType) => {
-  if (active.value.startsWith(item.path)) {
+  const activeLevel = active.value.split('/').length;
+  const pathLevel = item.path.split('/').length;
+  if (activeLevel > pathLevel && active.value.startsWith(item.path)) {
     return active.value;
   }
+
+  if (active.value === item.path) {
+    return active.value;
+  }
+
   return item.meta?.single ? item.redirect : item.path;
 };
 
