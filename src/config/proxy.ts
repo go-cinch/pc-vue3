@@ -14,7 +14,7 @@ export default {
   },
   release: {
     // 正式环境接口地址
-    host: '',
+    host: 'https://app.go-cinch.top',
     // 正式环境 cdn 路径
     cdn: '',
   },
