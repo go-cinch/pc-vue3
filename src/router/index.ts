@@ -21,12 +21,27 @@ const defaultRouterList: Array<RouteRecordRaw> = [
     redirect: '/dashboard/base',
   },
 ];
+
+// 根router排序
+const rootRouterSort = ['/dashboard', '/system', '/oss', '/result', '/user', '/loginRedirect', '/login', '/'];
+
 // 存放固定路由
 export const homepageRouterList: Array<RouteRecordRaw> = mapModuleRouterList(homepageModules);
 export const fixedRouterList: Array<RouteRecordRaw> = mapModuleRouterList(fixedModules);
 
-export const allRoutes = [...homepageRouterList, ...fixedRouterList, ...defaultRouterList];
+export const beforeSortRoutes = [...homepageRouterList, ...fixedRouterList, ...defaultRouterList];
 
+const afterSortRoutes = [];
+for (const v1 of rootRouterSort) {
+  for (const v2 of beforeSortRoutes) {
+    if (v2.path === v1) {
+      afterSortRoutes.push(v2);
+    }
+  }
+}
+export const allRoutes = afterSortRoutes;
+
+console.log(allRoutes);
 // 固定路由模块转换为路由
 export function mapModuleRouterList(modules: Record<string, unknown>): Array<RouteRecordRaw> {
   const routerList: Array<RouteRecordRaw> = [];
