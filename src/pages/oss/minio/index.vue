@@ -4,9 +4,8 @@
       <t-checkbox v-model="disabled">禁用状态</t-checkbox>
       <t-checkbox v-model="autoUpload">自动上传</t-checkbox>
       <t-checkbox v-model="showThumbnail">显示文件缩略图</t-checkbox>
-      <t-checkbox v-model="allowUploadDuplicateFile"> 允许上传同名文件 </t-checkbox>
-      <t-checkbox v-model="isBatchUpload"> 整体替换上传 </t-checkbox>
-      <t-checkbox v-model="uploadAllFilesInOneRequest"> 多个文件一个请求上传 </t-checkbox>
+      <t-checkbox v-model="allowUploadDuplicateFile"> 允许上传同名文件</t-checkbox>
+      <t-checkbox v-model="isBatchUpload"> 整体替换上传</t-checkbox>
     </t-space>
 
     <br />
@@ -24,19 +23,19 @@
       :show-thumbnail="showThumbnail"
       :allow-upload-duplicate-file="allowUploadDuplicateFile"
       :is-batch-upload="isBatchUpload"
-      :upload-all-files-in-one-request="uploadAllFilesInOneRequest"
       :format-response="formatResponse"
-      multiple="true"
+      :multiple="true"
+      :on-cancel-upload="onCancelUpload"
     ></t-upload>
 
-    <t-link theme="primary" href="//minio.go-cinch.top/browser/test" target="_blank"> 点击查看Minio </t-link>
+    <t-link theme="primary" href="//minio.go-cinch.top/browser/test" target="_blank"> 点击查看Minio</t-link>
     <t-tag>用户名: cinch</t-tag>
     <t-tag>密码: cinch123456</t-tag>
   </t-space>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { UploadProps, UploadInstanceFunctions } from 'tdesign-vue-next';
+import { computed, ref } from 'vue';
+import { UploadInstanceFunctions, UploadProps } from 'tdesign-vue-next';
 import axios from 'axios';
 import { preSigned } from '@/api/oss';
 
@@ -48,7 +47,7 @@ const showThumbnail = ref(false);
 const allowUploadDuplicateFile = ref(false);
 const isBatchUpload = ref(false);
 const uploadRef = ref<UploadInstanceFunctions>();
-const uploadAllFilesInOneRequest = ref(false);
+let requestControllers: AbortController[] = [];
 const formatResponse: UploadProps['formatResponse'] = (res) => {
   if (!res) {
     return {
@@ -58,21 +57,42 @@ const formatResponse: UploadProps['formatResponse'] = (res) => {
   }
   return res;
 };
-const requestSuccessMethod: UploadProps['requestMethod'] = (file) => {
-  return new Promise(async (resolve): Promise<void> => {
-    try {
-      const preUpload = await preSigned({
-        name: file[0].name,
-        category: 1,
-      });
-      const formData = new FormData();
-      formData.append('file', file[0].raw);
 
+const onCancelUpload = () => {
+  for (const item of requestControllers) {
+    item.abort();
+  }
+  requestControllers = [];
+};
+
+const requestSuccessMethod: UploadProps['requestMethod'] = (file) => {
+  return new Promise((resolve) => {
+    (async () => {
       try {
+        const preUpload = await preSigned({
+          name: file[0].name,
+          category: 1,
+        });
+        const formData = new FormData();
+        formData.append('file', file[0].raw);
+
+        const controller = new AbortController();
+        const { signal } = controller;
+        requestControllers.push(controller);
         const response = await axios.put(preUpload.uri, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          signal,
+          // onUploadProgress: (progressEvent) => {
+          //   const progress = parseFloat((progressEvent.progress * 100).toFixed(2));
+          //   if (progress < 100) {
+          //     uploadRef.value.uploadFilePercent({
+          //       file: file[0],
+          //       percent: progress,
+          //     });
+          //   }
+          // },
         });
         if (response.status === 200) {
           const uploaded = await preSigned({
@@ -86,26 +106,18 @@ const requestSuccessMethod: UploadProps['requestMethod'] = (file) => {
             },
           });
         } else {
-          resolve({
-            status: 'fail',
-            response: {
-              error: '上传失败，原因：文件过大或网络不通',
-            },
-          });
+          throw new Error('not 200');
         }
-      } catch (error) {
+      } catch (e) {
         resolve({
           status: 'fail',
-          response: {
-            error: '上传失败，原因：文件过大或网络不通',
-          },
+          error: '上传失败，原因：文件过大或网络不通',
+          response: {},
         });
+      } finally {
+        console.log('end');
       }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      console.log('end');
-    }
+    })();
   });
 };
 const requestMethod = computed<UploadProps['requestMethod']>(() => requestSuccessMethod);
