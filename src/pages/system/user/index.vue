@@ -409,7 +409,7 @@ const cancelUnlock = () => {
 const confirmUnlock = async () => {
   const params = {
     id: unlockIdx.value,
-    locked: 0,
+    locked: false,
   };
   try {
     await updateUser(params);
@@ -434,7 +434,7 @@ const cancelLock = () => {
 const confirmLock = async () => {
   const params = {
     id: lockIdx.value,
-    locked: 1,
+    locked: true,
     lockExpireTime: '',
   };
   if (!lockFormData.value.forever) {
@@ -595,7 +595,7 @@ const handleRowLock = ({ row }) => {
 
 const handleRowUnlock = ({ row }) => {
   unlockIdx.value = row.id;
-  lockHeader.value = `解锁"${row.username}"?`;
+  unlockHeader.value = `解锁"${row.username}"?`;
   unlockVisible.value = true;
 };
 

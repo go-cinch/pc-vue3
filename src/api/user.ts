@@ -2,11 +2,12 @@ import { request } from '@/utils/request';
 import { FindUserReply, UserCaptchaReply, UserInfoReply, UserLoginReply, UserStatusReply } from '@/api/model/userModel';
 
 const Api = {
-  UserLogin: '/auth/login',
-  UserCaptcha: '/auth/captcha',
-  UserStatus: '/auth/status',
+  UserLogin: '/auth/pub/login',
+  UserLogout: '/auth/logout',
+  UserCaptcha: '/auth/pub/captcha',
+  UserStatus: '/auth/pub/status',
   UserInfo: '/auth/info',
-  Register: '/auth/register',
+  Register: '/auth/pub/register',
   FindUser: '/auth/user',
   UpdateUser: '/auth/user',
   DeleteUser: '/auth/user',
@@ -16,6 +17,12 @@ export function login(data) {
   return request.post<UserLoginReply>({
     url: Api.UserLogin,
     data,
+  });
+}
+
+export function logout() {
+  return request.post({
+    url: Api.UserLogout,
   });
 }
 

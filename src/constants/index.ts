@@ -1,6 +1,6 @@
 export const BOOL = {
-  TRUE: '1',
-  FALSE: '0',
+  TRUE: true,
+  FALSE: false,
 };
 
 export const LOCKED_OPTIONS = [

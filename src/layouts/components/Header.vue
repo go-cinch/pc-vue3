@@ -76,6 +76,7 @@ import type { MenuRoute } from '@/types/interface';
 import Notice from './Notice.vue';
 import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
+import { logout } from '@/api/user';
 
 const props = defineProps({
   theme: {
@@ -143,7 +144,8 @@ const handleNav = (url) => {
   router.push(url);
 };
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  await logout();
   router.push({
     path: '/login',
     query: { redirect: encodeURIComponent(router.currentRoute.value.fullPath) },
