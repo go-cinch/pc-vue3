@@ -11,7 +11,6 @@ export const LOCKED_OPTIONS = [
 export const WHITELIST_OPTIONS = [
   { value: 0, label: 'permission' },
   { value: 1, label: 'jwt' },
-  { value: 2, label: 'idempotent' },
 ];
 
 // 合同状态枚举

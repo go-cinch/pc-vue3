@@ -2,10 +2,10 @@ import { request } from '@/utils/request';
 import { FindActionReply } from '@/api/model/actionModel';
 
 const Api = {
-  CreateAction: '/auth/action',
-  FindAction: '/auth/action',
-  UpdateAction: '/auth/action',
-  DeleteAction: '/auth/action',
+  CreateAction: '/auth/action/create',
+  FindAction: '/auth/action/list',
+  UpdateAction: '/auth/action/update',
+  DeleteAction: '/auth/action/delete',
 };
 
 export function createAction(token, data) {
@@ -27,13 +27,13 @@ export function findAction(params) {
 
 export function updateAction(data) {
   return request.patch({
-    url: `${Api.UpdateAction}/${data.id}`,
+    url: Api.UpdateAction,
     data,
   });
 }
 
 export function deleteAction(ids) {
   return request.delete({
-    url: `${Api.DeleteAction}/${ids.join(',')}`,
+    url: `${Api.DeleteAction}?ids=${ids.join(',')}`,
   });
 }
