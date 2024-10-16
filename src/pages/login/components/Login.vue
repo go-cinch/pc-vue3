@@ -49,15 +49,10 @@
         </t-input>
         <t-image class="captcha-wrapper" :src="captchaImg" :style="{ height: '40px' }" @click="refreshCaptcha" />
       </t-form-item>
-
-      <div class="check-container remember-pwd">
-        <t-checkbox>记住账号</t-checkbox>
-        <span class="tip">忘记账号？</span>
-      </div>
     </template>
 
     <t-form-item v-if="type !== 'qrcode'" class="btn-container">
-      <t-button v-if="disableLogin" block size="large" theme="default" :disabled="disableLogin"> 账户已锁定 </t-button>
+      <t-button v-if="disableLogin" block size="large" theme="default" :disabled="disableLogin"> 账户已锁定, 请过会儿再试 </t-button>
       <t-button v-else block size="large" type="submit"> 登录 </t-button>
     </t-form-item>
 
@@ -73,6 +68,7 @@ import { useRouter } from 'vue-router';
 import { FormInstanceFunctions, MessagePlugin } from 'tdesign-vue-next';
 import { useUserStore } from '@/store';
 import { captcha, userStatus } from '@/api/user';
+import {BOOL} from "@/constants";
 
 const userStore = useUserStore();
 
@@ -119,6 +115,7 @@ const onSubmit = async ({ validateResult }) => {
       if (e.response && e.response.data && e.response.data.message) {
         MessagePlugin.error(e.response.data.message);
       }
+      await getUserStatus();
       await refreshCaptcha();
     }
   }
@@ -129,12 +126,6 @@ const saveOldUsername = async () => {
 };
 
 const getUserStatus = async () => {
-  if (oldUsername.value === formData.value.username) {
-    return;
-  }
-  if (formData.value.username.length < 5) {
-    return;
-  }
   try {
     const data = await userStatus({ username: formData.value.username });
     if (data.captcha) {
@@ -148,7 +139,7 @@ const getUserStatus = async () => {
     } else {
       showCaptcha.value = false;
     }
-    if (data.locked === '1') {
+    if (data.locked === BOOL.TRUE) {
       disableLogin.value = true;
     } else {
       disableLogin.value = false;

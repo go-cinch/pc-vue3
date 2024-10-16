@@ -21,7 +21,7 @@ export interface UserStatusReply {
     id: string;
     img: string;
   };
-  locked: string;
+  locked: boolean;
   lockExpire: string;
 }
 
