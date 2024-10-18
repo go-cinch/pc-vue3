@@ -69,19 +69,23 @@ const requestSuccessMethod: UploadProps['requestMethod'] = (file) => {
   return new Promise((resolve) => {
     (async () => {
       try {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const filename = `${year}-${month}-${day}/pc-vue3/${file[0].name}`;
+
         const preUpload = await preSigned({
-          name: file[0].name,
+          name: filename,
           category: 1,
         });
-        const formData = new FormData();
-        formData.append('file', file[0].raw);
 
         const controller = new AbortController();
         const { signal } = controller;
         requestControllers.push(controller);
-        const response = await axios.put(preUpload.uri, formData, {
+        const response = await axios.put(preUpload.uri, file[0].raw, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': file[0].raw.type,
           },
           signal,
           // onUploadProgress: (progressEvent) => {
@@ -96,7 +100,7 @@ const requestSuccessMethod: UploadProps['requestMethod'] = (file) => {
         });
         if (response.status === 200) {
           const uploaded = await preSigned({
-            name: file[0].name,
+            name: filename,
             category: 0,
           });
           resolve({
