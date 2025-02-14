@@ -32,6 +32,7 @@
     "tdesign-icons-vue-next": "^0.1.12",
     "tdesign-vue-next": "^1.10.2",
     "tvision-color": "^1.5.0",
+    "uuid": "^11.0.5",
     "vue": "^3.2.45",
     "vue-clipboard3": "^2.0.0",
     "vue-router": "~4.1.6"

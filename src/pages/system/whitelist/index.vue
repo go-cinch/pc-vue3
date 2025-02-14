@@ -112,7 +112,7 @@ import { MessagePlugin } from 'tdesign-vue-next';
 import { useSettingStore } from '@/store';
 import { prefix } from '@/config/global';
 import { createWhitelist, deleteWhitelist, findWhitelist, updateWhitelist } from '@/api/whitelist';
-import { authIdempotent } from '@/api/idempotent';
+import { v4 as uuidv4 } from 'uuid';
 import { WHITELIST_OPTIONS } from '@/constants';
 
 const store = useSettingStore();
@@ -185,8 +185,7 @@ const idempotentToken = ref('');
 
 const refreshIdempotentToken = async () => {
   try {
-    const { token } = await authIdempotent();
-    idempotentToken.value = token;
+    idempotentToken.value = uuidv4();
   } catch (e) {
     console.log(e);
   }

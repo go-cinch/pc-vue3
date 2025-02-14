@@ -162,7 +162,7 @@ import { prefix } from '@/config/global';
 import { createUserGroup, deleteUserGroup, findUserGroup, updateUserGroup } from '@/api/userGroup';
 import { findUser } from '@/api/user';
 import { findAction } from '@/api/action';
-import { authIdempotent } from '@/api/idempotent';
+import { v4 as uuidv4 } from 'uuid';
 
 const store = useSettingStore();
 
@@ -231,8 +231,7 @@ const idempotentToken = ref('');
 
 const refreshIdempotentToken = async () => {
   try {
-    const { token } = await authIdempotent();
-    idempotentToken.value = token;
+    idempotentToken.value = uuidv4();
   } catch (e) {
     console.log(e);
   }
